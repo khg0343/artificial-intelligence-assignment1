@@ -7,7 +7,7 @@
 
 from util import manhattanDistance
 from game import Directions
-import random, util
+import random, util, math
 
 from game import Agent
 
@@ -132,159 +132,148 @@ class MultiAgentSearchAgent(Agent):
 # Problem 1a: implementing minimax
 
 class MinimaxAgent(MultiAgentSearchAgent):
-  """
-    Your minimax agent (problem 1)
-  """
-  
-  def getAction(self, gameState):
-    """
-      Returns the minimax action from the current gameState using self.depth
-      and self.evaluationFunction. Terminal states can be found by one of the following: 
-      pacman won, pacman lost or there are no legal moves. 
+      """
+            Your minimax agent (problem 1)
+      """
+      def getAction(self, gameState):
+            """
+                  Returns the minimax action from the current gameState using self.depth
+                  and self.evaluationFunction. Terminal states can be found by one of the following: 
+                  pacman won, pacman lost or there are no legal moves. 
 
-      Here are some method calls that might be useful when implementing minimax.
+                  Here are some method calls that might be useful when implementing minimax.
 
-      gameState.getLegalActions(agentIndex):
-        Returns a list of legal actions for an agent
-        agentIndex=0 means Pacman, ghosts are >= 1
+                  gameState.getLegalActions(agentIndex):
+                  Returns a list of legal actions for an agent
+                  agentIndex=0 means Pacman, ghosts are >= 1
 
-      Directions.STOP:
-        The stop direction, which is always legal
+                  Directions.STOP:
+                  The stop direction, which is always legal
 
-      gameState.generateSuccessor(agentIndex, action):
-        Returns the successor game state after an agent takes an action
+                  gameState.generateSuccessor(agentIndex, action):
+                  Returns the successor game state after an agent takes an action
 
-      gameState.getNumAgents():
-        Returns the total number of agents in the game
+                  gameState.getNumAgents():
+                  Returns the total number of agents in the game
 
-      gameState.getScore():
-        Returns the score corresponding to the current state of the game
-        It corresponds to Utility(s)
-    
-      gameState.isWin():
-        Returns True if it's a winning state
-    
-      gameState.isLose():
-        Returns True if it's a losing state
+                  gameState.getScore():
+                  Returns the score corresponding to the current state of the game
+                  It corresponds to Utility(s)
+            
+                  gameState.isWin():
+                  Returns True if it's a winning state
+            
+                  gameState.isLose():
+                  Returns True if it's a losing state
 
-      self.depth:
-        The depth to which search should continue
-    """
+                  self.depth:
+                  The depth to which search should continue
+            """
 
-    # BEGIN_YOUR_ANSWER (our solution is 30 lines of code, but don't worry if you deviate from this)
-    # raise NotImplementedError  # remove this line before writing code
-    def maximizer(state, depth):
-          if depth == self.depth or state.isWin() or state.isLose():
-                return self.evaluationFunction(state)
+            # BEGIN_YOUR_ANSWER (our solution is 30 lines of code, but don't worry if you deviate from this)
+            # raise NotImplementedError  # remove this line before writing code
+            def maximizer(state, depth):
+                  if depth == self.depth or state.isWin() or state.isLose():
+                        return self.evaluationFunction(state)
 
-          value = float("-inf")
-          legalMoves = state.getLegalActions()
+                  value = -math.inf
+                  legalMoves = state.getLegalActions()
 
-          for action in legalMoves:
-                value = max(value, minimizer(state.generateSuccessor(0, action), depth, 1))
+                  for action in legalMoves:
+                        value = max(value, minimizer(state.generateSuccessor(0, action), depth, 1))
 
-          return value
+                  return value
 
-    def minimizer(state, depth, agentIndex):
-          if depth == self.depth or state.isWin() or state.isLose():
-                return self.evaluationFunction(state)
+            def minimizer(state, depth, agentIndex):
+                  if depth == self.depth or state.isWin() or state.isLose():
+                        return self.evaluationFunction(state)
 
-          value = float("-inf")
-          legalMoves = state.getLegalActions(agentIndex)
+                  value = -math.inf
+                  legalMoves = state.getLegalActions(agentIndex)
 
-          if agentIndex == state.getNumAgents()-1:
-                for action in legalMoves:
-                      value = min(value, maximizer(state.generateSuccessor(agentIndex, action), depth+1))
-          else :
-                for action in legalMoves:
-                      value = min(value, minimizer(state.generateSuccessor(agentIndex, action), depth, agentIndex+1))
-                
-          return value
+                  if agentIndex == state.getNumAgents()-1:
+                        for action in legalMoves:
+                              value = min(value, maximizer(state.generateSuccessor(agentIndex, action), depth+1))
+                  else :
+                        for action in legalMoves:
+                              value = min(value, minimizer(state.generateSuccessor(agentIndex, action), depth, agentIndex+1))
+            
+                  return value
 
-    legalMoves = gameState.getLegalActions()
-    move = Directions.STOP
-    value = float("-inf")
+            legalMoves = gameState.getLegalActions()
+            move = Directions.STOP
+            value = -math.inf
 
-    for action in legalMoves:
-          temp = minimizer(gameState.generateSuccessor(0, action), 0, 1)
-          
-          if temp > value :
-                value = temp
-                move = action
+            for action in legalMoves:
+                  temp = minimizer(gameState.generateSuccessor(0, action), 0, 1)
+                  if temp > value :
+                        value = temp
+                        move = action
 
-    return move
-          
-    # END_YOUR_ANSWER
+            return move
+            
+      # END_YOUR_ANSWER
 
 ######################################################################################
 # Problem 2b: implementing alpha-beta
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
-  """
-    Your minimax agent with alpha-beta pruning (problem 2)
-  """
+      """
+      Your minimax agent with alpha-beta pruning (problem 2)
+      """
 
-  def getAction(self, gameState):
-    """
-      Returns the minimax action using self.depth and self.evaluationFunction
-    """
+      def getAction(self, gameState):
+            """
+                  Returns the minimax action using self.depth and self.evaluationFunction
+            """
 
-    # BEGIN_YOUR_ANSWER (our solution is 42 lines of code, but don't worry if you deviate from this)
-    # raise NotImplementedError  # remove this line before writing code
-    def maximizer(state, depth, alpha, beta):
-          if depth == self.depth or state.isWin() or state.isLose():
-                return self.evaluationFunction(state)
+            # BEGIN_YOUR_ANSWER (our solution is 42 lines of code, but don't worry if you deviate from this)
+            # raise NotImplementedError  # remove this line before writing code
+            def maximizer(state, depth, alpha, beta):
+                  if depth == self.depth or state.isWin() or state.isLose():
+                        return self.evaluationFunction(state)
 
-          value = float("-inf")
-          legalMoves = state.getLegalActions()
+                  value = -math.inf
+                  for action in state.getLegalActions():
+                        value = max(value, minimizer(state.generateSuccessor(0, action), depth, 1, alpha, beta))
+                        if value > beta :
+                              return value
+                        alpha = max(alpha, value)
+            
+                  return value
 
-          for action in legalMoves:
-                value = max(value, minimizer(state.generateSuccessor(0, action), depth, 1, alpha, beta))
-                if value > beta :
-                      return value
-                alpha = max(alpha, value)
-          
-          return value
+            def minimizer(state, depth, agentIndex, alpha, beta):
+                  if depth == self.depth or state.isWin() or state.isLose():
+                        return self.evaluationFunction(state)
 
-    def minimizer(state, depth, agentIndex, alpha, beta):
-          if depth == self.depth or state.isWin() or state.isLose():
-                return self.evaluationFunction(state)
+                  value = -math.inf                  
+                  for action in state.getLegalActions(agentIndex):
+                        if agentIndex == state.getNumAgents()-1:
+                              value = min(value, maximizer(state.generateSuccessor(agentIndex, action), depth+1, alpha, beta))
+                        else :
+                              value = min(value, minimizer(state.generateSuccessor(agentIndex, action), depth, agentIndex+1, alpha, beta))
+                              
+                        if value < alpha:
+                              return value
+                        beta = min(beta, value)
+                  
+                  return value
 
-          value = float("-inf")
-          legalMoves = state.getLegalActions(agentIndex)
+            move = Directions.STOP
+            value = -math.inf
+            alpha = -math.inf
+            beta = -math.inf
 
-          if agentIndex == state.getNumAgents()-1:
-                for action in legalMoves:
-                      value = min(value, maximizer(state.generateSuccessor(agentIndex, action), depth+1, alpha, beta))
-                      if value < alpha:
-                            return value
-                      beta = min(beta, value)
-          else :
-                for action in legalMoves:
-                      value = min(value, minimizer(state.generateSuccessor(agentIndex, action), depth, agentIndex+1, alpha, beta))
-                      if value < alpha:
-                            return value
-                      beta = min(beta, value)
-                
-          return value
+            for action in gameState.getLegalActions():
+                  temp = minimizer(gameState.generateSuccessor(0, action), 0, 1, alpha, beta)
+                  if temp > value :
+                        value = temp
+                        move = action
+                  
+                  alpha = max(alpha, value)
 
-    legalMoves = gameState.getLegalActions()
-    move = Directions.STOP
-    value = float("-inf")
-    alpha = float("-inf")
-    beta = float("-inf")
-
-    for action in legalMoves:
-          temp = minimizer(gameState.generateSuccessor(0, action), 0, 1, alpha, beta)
-          
-          if temp > value :
-                value = temp
-                move = action
-          
-          alpha = max(alpha, value)
-
-    return move
-    # END_YOUR_ANSWER
+            return move
+            # END_YOUR_ANSWER
 
 ######################################################################################
 # Problem 3a: implementing expectimax
@@ -308,7 +297,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           if depth == self.depth or state.isWin() or state.isLose():
                 return self.evaluationFunction(state)
 
-          value = float("-inf")
+          value = -math.inf
           legalMoves = state.getLegalActions()
 
           for action in legalMoves:
@@ -334,7 +323,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
     legalMoves = gameState.getLegalActions()
     move = Directions.STOP
-    value = float("-inf")
+    value = -math.inf
 
     for action in legalMoves:
           temp = expecter(gameState.generateSuccessor(0, action), 0, 1)
