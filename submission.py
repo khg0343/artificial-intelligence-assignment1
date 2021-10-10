@@ -352,30 +352,44 @@ def betterEvaluationFunction(currentGameState):
             ghostPos = ghost.configuration.getPosition()
             ghostDist = manhattanDistance(currentGameState.getPacmanPosition(), ghostPos)
             if (ghost.scaredTimer > 0) & (ghostDist < 2):
-                  ghostDistScore += 1.0/(ghostDist+1)
+                  if ghostDist == 0 : ghostDistScore += 2.0
+                  else :              ghostDistScore += 1.0/(ghostDist)
             elif (ghost.scaredTimer == 0) & (ghostDist < 2):
-                  ghostDistScore -= 1.0/(ghostDist+1)
+                  if ghostDist == 0 : ghostDistScore -= 2.0
+                  else :              ghostDistScore -= 1.0/(ghostDist)
  
-      foodDistMin = 100.0
+      foodDistMin = math.inf
       foodDistMinScore = 0
       if len(foodDistList) > 0:
             foodDistMin = min(foodDistList)
-            foodDistMinScore = 1.0/(foodDistMin)
+            if foodDistMin < 15:
+                  foodDistMinScore = 1.0/(foodDistMin)
       
-      capsuleDistMin = 100.0
+      capsuleDistMin = math.inf
       capsuleDistMinScore = 0;    
       if len(capsuleDistList) > 0:
             capsuleDistMin = min(capsuleDistList)
             if capsuleDistMin < 5:
                   capsuleDistMinScore = 1.0/(capsuleDistMin)
+                  
+      eatenFoodNum = 0
+      for foodPos in currentGameState.getFood().asList():
+            foodDist = manhattanDistance(currentGameState.getPacmanPosition(), foodPos)
+            if foodDist == 0 :
+                  eatenFoodNum += 1
       
-      capsuleNum = 0
+      eatenCapsuleNum = 0
       for capsulePos in currentGameState.getCapsules():
-            if (currentGameState.getPacmanPosition()[0]== capsulePos[0]) & (currentGameState.getPacmanPosition()[1]==capsulePos[1]):
-                  capsuleNum += 1
+            capsuleDist = manhattanDistance(currentGameState.getPacmanPosition(), capsulePos)
+            if capsuleDist == 0 :
+                  eatenCapsuleNum += 1
+                  
+      leftFoodNum = len(currentGameState.getFood().asList())       
+      leftCapsuleNum = len(currentGameState.getCapsules())
+
            
-      features = [foodDistMinScore, capsuleDistMinScore, ghostDistScore, capsuleNum, len(foodDistList)]
-      weights = [1, 500, 1000, 600, -10]
+      features = [foodDistMinScore, capsuleDistMinScore, ghostDistScore, eatenFoodNum, eatenCapsuleNum, leftFoodNum, leftCapsuleNum]
+      weights = [1, 500, 1000, 700, -10, -10, -1]
 
       return sum([feature * weight for feature, weight in zip(features, weights)])
       # END_YOUR_ANSWER
