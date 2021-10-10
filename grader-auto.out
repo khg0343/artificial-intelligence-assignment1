@@ -60,7 +60,7 @@ parts:
   messages: []
   name: 4a-1-hidden
   points: 0
-  seconds: 36
+  seconds: 34
   side:
     score: 1158.4
 - description: Check if score at least 1000 on smallClassic.

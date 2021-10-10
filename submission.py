@@ -11,7 +11,6 @@ import random, util, math
 
 from game import Agent
 
-
 class ReflexAgent(Agent):
   """
     A reflex agent chooses an action at each choice point by examining
@@ -21,6 +20,7 @@ class ReflexAgent(Agent):
     it in any way you see fit, so long as you don't touch our method
     headers.
   """
+  
   def __init__(self):
     self.lastPositions = []
     self.dc = None
@@ -74,49 +74,28 @@ class ReflexAgent(Agent):
     bestScore = max(scores)
     bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
     chosenIndex = random.choice(bestIndices) # Pick randomly among the best
-    
+
+
     return legalMoves[chosenIndex]
 
   def evaluationFunction(self, currentGameState, action):
-      """
-      The evaluation function takes in the current and proposed successor
-      GameStates (pacman.py) and returns a number, where higher numbers are better.
+    """
+    The evaluation function takes in the current and proposed successor
+    GameStates (pacman.py) and returns a number, where higher numbers are better.
 
-      The code below extracts some useful information from the state, like the
-      remaining food (oldFood) and Pacman position after moving (newPos).
-      newScaredTimes holds the number of moves that each ghost will remain
-      scared because of Pacman having eaten a power pellet.
-      """
-      # Useful information you can extract from a GameState (pacman.py)
-      score = 0
-      oldPos = currentGameState.getPacmanPosition()
-      oldFood = currentGameState.getFood()
-      successorGameState = currentGameState.generatePacmanSuccessor(action)
-      newPos = successorGameState.getPacmanPosition()
-      newFood = successorGameState.getFood()
-      newGhostStates = successorGameState.getGhostStates()
-      newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+    The code below extracts some useful information from the state, like the
+    remaining food (oldFood) and Pacman position after moving (newPos).
+    newScaredTimes holds the number of moves that each ghost will remain
+    scared because of Pacman having eaten a power pellet.
+    """
+    # Useful information you can extract from a GameState (pacman.py)
+    successorGameState = currentGameState.generatePacmanSuccessor(action)
+    newPos = successorGameState.getPacmanPosition()
+    oldFood = currentGameState.getFood()
+    newGhostStates = successorGameState.getGhostStates()
+    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
-      maxlength = currentGameState.getWalls().height + currentGameState.getWalls().width - 4
-      if oldFood[newPos[0]][newPos[1]] :
-            score += 10
-      newFoodDistance = -math.inf
-      for food in newFood.asList() :
-            foodDistance = manhattanDistance(newPos, food)
-            newFoodDistance = min([newFoodDistance, foodDistance])
-            
-      newGhostDistance = -math.inf
-      for ghost in successorGameState.getGhostPositions() :
-            ghostDistance = manhattanDistance(newPos, ghost)
-            newGhostDistance = min([newGhostDistance, ghostDistance])
-
-      if newGhostDistance < 2 :
-            score -= 500
-      
-      score = score + 1.0/newFoodDistance + newGhostDistance/maxlength
-      
-      return score
-      # return successorGameState.getScore()
+    return successorGameState.getScore()
 
 
 def scoreEvaluationFunction(currentGameState):
@@ -192,7 +171,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
             """
 
             # BEGIN_YOUR_ANSWER (our solution is 30 lines of code, but don't worry if you deviate from this)
-            # raise NotImplementedError  # remove this line before writing code
+            # raise NotImplementedError  # remove this line before writing code                       
             def max_value(state, depth):
                   if depth == self.depth or state.isWin() or state.isLose():
                         return self.evaluationFunction(state)
