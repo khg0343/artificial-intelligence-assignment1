@@ -339,43 +339,45 @@ def betterEvaluationFunction(currentGameState):
 
       # BEGIN_YOUR_ANSWER (our solution is 60 lines of code, but don't worry if you deviate from this)
       # raise NotImplementedError  # remove this line before writing code
-      currentPos = currentGameState.getPacmanPosition()
-      currentFood = currentGameState.getFood()
-      capsulePos = currentGameState.getCapsules()
+      foodDistList = list()
+      for foodPos in currentGameState.getFood().asList():
+            foodDistList.append(manhattanDistance(currentGameState.getPacmanPosition(), foodPos))
+      
+      capsuleDistList = list()
+      for capsulePos in currentGameState.getCapsules():
+            capsuleDistList.append(manhattanDistance(currentGameState.getPacmanPosition(), capsulePos))
+ 
+      ghostDistScore = 0
+      for ghost in currentGameState.getGhostStates():
+            ghostPos = ghost.configuration.getPosition()
+            ghostDist = manhattanDistance(currentGameState.getPacmanPosition(), ghostPos)
+            if (ghost.scaredTimer > 0) & (ghostDist < 2):
+                  ghostDistScore += 1.0/(ghostDist+1)
+            elif (ghost.scaredTimer == 0) & (ghostDist < 2):
+                  ghostDistScore -= 1.0/(ghostDist+1)
+ 
+      foodDistMin = 100.0
+      foodDistMinScore = 0
+      if len(foodDistList) > 0:
+            foodDistMin = min(foodDistList)
+            foodDistMinScore = 1.0/(foodDistMin)
+      
+      capsuleDistMin = 100.0
+      capsuleDistMinScore = 0;    
+      if len(capsuleDistList) > 0:
+            capsuleDistMin = min(capsuleDistList)
+            if capsuleDistMin < 5:
+                  capsuleDistMinScore = 1.0/(capsuleDistMin)
+      
+      capsuleNum = 0
+      for capsulePos in currentGameState.getCapsules():
+            if (currentGameState.getPacmanPosition()[0]== capsulePos[0]) & (currentGameState.getPacmanPosition()[1]==capsulePos[1]):
+                  capsuleNum += 1
+           
+      features = [foodDistMinScore, capsuleDistMinScore, ghostDistScore, capsuleNum, len(foodDistList)]
+      weights = [1, 500, 1000, 600, -10]
 
-      fooddistance = []
-      capsuledistance = []
-
-      for food in currentFood.asList():
-            fooddistance.append(manhattanDistance(currentPos, food))
-
-      for capsule in capsulePos:
-            capsuledistance.append(manhattanDistance(currentPos, capsule))
-
-      score = 0
-      x = currentPos[0]
-      y = currentPos[1]
-
-      for ghostState in currentGameState.getGhostStates():
-            gd = manhattanDistance(currentPos, ghostState.configuration.getPosition())
-
-            if gd < 2:
-                  if ghostState.scaredTimer != 0:
-                        score += 1000.0/(gd+1)
-                  else : 
-                        score -= 1000.0/(gd+1)
-
-      if min(capsuledistance+[float(100)])<5:
-            score += 500.0/(min(capsuledistance))
-
-      for capsule in capsulePos:
-            if (capsule[0]==x) & (capsule[1]==y):
-                  score += 600.0
-
-      minfooddistance = min(fooddistance+[float(100)])
-
-      return score + 1.0/minfooddistance - len(fooddistance)*10.0 
-
+      return sum([feature * weight for feature, weight in zip(features, weights)])
       # END_YOUR_ANSWER
 
 # Abbreviation
