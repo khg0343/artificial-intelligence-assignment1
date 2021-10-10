@@ -1,8 +1,8 @@
-## ID: 20180373 NAME: Kim Hyeonji
+## ID: 20180373 NAME: Kim Hyeonji (김현지)
 ######################################################################################
 # Problem 2a
 # minimax value of the root node: 6
-# pruned edges: i, m, x, 2
+# pruned edges: h, m, x
 ######################################################################################
 
 from util import manhattanDistance
